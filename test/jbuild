@@ -6,6 +6,12 @@
   (preprocess (pps (ppx_getenv2)))))
 
 (executable
+ ((name test2)
+  (modules (Lang test2))
+  (flags (-dsource -dparsetree))
+  (preprocess (pps (ppx_getenv2)))))
+
+(executable
  ((name pp)
   (modules (pp))
   (libraries (ppx_getenv2 ppx_driver))))
@@ -13,14 +19,20 @@
 (rule
  ((targets (test.result))
   (deps (test.ml))
-  (action (setenv PPX_GETENV2 foobar (run ./pp.exe --impl ${<} -o ${@})))))
+  (action (run ./pp.exe --impl ${<} -o ${@}))))
+
+(rule
+ ((targets (test2.result))
+  (deps (test2.ml))
+  (action (run ./pp.exe --impl ${<} -o ${@}))))
 
 (alias
  ((name runtest)
-  (deps (test.result test.expected))
-  (action (run diff -dEbBt test.result test.expected))))
+  (deps (test2.result test2.expected))
+  (action (run diff -udEbBt test2.result test2.expected))))
 
 (alias
  ((name runtest)
-  (deps (test.exe))
+  (deps (test2.exe))
   (action (run ${<}))))
+
